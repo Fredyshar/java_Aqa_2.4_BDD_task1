@@ -103,17 +103,17 @@ class ReplenishmentTest {
     }
 
     /*    TODO Тест с ошибкой */
-//    @Test
-//    void replenishmentOfCard0001IfThereIsNotEnoughMoneyOnCard0002() {
-//        var dashboard = new DashboardPage().MainPage();
-//        balanceCard0001 = dashboard.getCardBalance("0001");
-//        balanceCard0002 = dashboard.getCardBalance("0002");
-//        dashboard.replenishCard0001();
-//
-//        var transfer = new TransferPage().transfer0001(1000000);
-//
-//        $("[data-test-id='error-notification']")
-//                .shouldHave(Condition.text("Ошибка"))
-//                .shouldBe(visible);
-//    }
+    @Test
+    void replenishmentOfCard0001IfThereIsNotEnoughMoneyOnCard0002() {
+        var dashboard = new DashboardPage().MainPage();
+        balanceCard0001 = dashboard.getCardBalance("0001");
+        balanceCard0002 = dashboard.getCardBalance("0002");
+        dashboard.replenishCard0001();
+
+        var transfer = new TransferPage().transfer0001(1000000);
+
+        $("[data-test-id='error-notification']")
+                .shouldHave(Condition.text("Ошибка"))
+                .shouldBe(visible);
+    }
 }
