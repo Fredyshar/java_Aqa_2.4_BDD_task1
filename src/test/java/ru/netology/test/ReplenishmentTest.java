@@ -19,6 +19,15 @@ class ReplenishmentTest {
 
     int balanceCard0001, balanceCard0002, actualBalanceCard0001, actualBalanceCard0002;
 
+    public DashboardPage mainPage() {
+        var loginPage = new LoginPage();
+        var authInfo = DataHelper.getAuthInfo();
+        var verificationPage = loginPage.validLogin(authInfo);
+        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
+        verificationPage.validVerify(verificationCode);
+        return new DashboardPage();
+    }
+
 
     @BeforeEach
     void setup() {
@@ -32,7 +41,7 @@ class ReplenishmentTest {
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         verificationPage.validVerify(verificationCode);
-        $("#root")
+        $("#root h1")
                 .shouldHave(Condition.text("Ваши карты"))
                 .shouldBe(visible);
     }
@@ -72,13 +81,13 @@ class ReplenishmentTest {
 
     @Test
     void successfulReplenishmentOfCard0001() {
+        mainPage();
         var dashboard = new DashboardPage();
-        dashboard.MainPage();
         balanceCard0001 = dashboard.getCardBalance("0001");
         balanceCard0002 = dashboard.getCardBalance("0002");
         dashboard.replenishCard0001();
 
-        var transfer = new TransferPage().transfer0001(5000);
+        var transfer = new TransferPage().transfer(5000, DataHelper.cardNumber("0001"));
         actualBalanceCard0001 = transfer.getCardBalance("0001");
         actualBalanceCard0002 = transfer.getCardBalance("0002");
 
@@ -86,15 +95,15 @@ class ReplenishmentTest {
         Assertions.assertEquals(balanceCard0002 - 5000, actualBalanceCard0002);
     }
 
-
     @Test
     void successfulReplenishmentOfCard0002() {
-        var dashboard = new DashboardPage().MainPage();
+        mainPage();
+        var dashboard = new DashboardPage();
         balanceCard0001 = dashboard.getCardBalance("0001");
         balanceCard0002 = dashboard.getCardBalance("0002");
         dashboard.replenishCard0002();
 
-        var transfer = new TransferPage().transfer0002(500);
+        var transfer = new TransferPage().transfer(500, DataHelper.cardNumber("0002"));
         actualBalanceCard0001 = transfer.getCardBalance("0001");
         actualBalanceCard0002 = transfer.getCardBalance("0002");
 
@@ -105,12 +114,13 @@ class ReplenishmentTest {
     /*    TODO Тест с ошибкой */
     @Test
     void replenishmentOfCard0001IfThereIsNotEnoughMoneyOnCard0002() {
-        var dashboard = new DashboardPage().MainPage();
+        mainPage();
+        var dashboard = new DashboardPage();
         balanceCard0001 = dashboard.getCardBalance("0001");
         balanceCard0002 = dashboard.getCardBalance("0002");
         dashboard.replenishCard0001();
 
-        var transfer = new TransferPage().transfer0001(1000000);
+        var transfer = new TransferPage().transfer(100000, DataHelper.cardNumber("0001"));
 
         $("[data-test-id='error-notification']")
                 .shouldHave(Condition.text("Ошибка"))
