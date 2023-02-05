@@ -41,7 +41,7 @@ class ReplenishmentTest {
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         verificationPage.validVerify(verificationCode);
-        $("#root h1")
+        $("h1")
                 .shouldBe(visible);
     }
 
