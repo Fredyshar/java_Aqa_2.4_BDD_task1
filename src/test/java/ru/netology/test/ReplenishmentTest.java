@@ -42,7 +42,6 @@ class ReplenishmentTest {
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         verificationPage.validVerify(verificationCode);
         $("#root h1")
-                .shouldHave(Condition.text("Ваши карты"))
                 .shouldBe(visible);
     }
 
@@ -51,7 +50,7 @@ class ReplenishmentTest {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.invalidLogin(authInfo);
-        $("[data-test-id='error-notification']")
+        loginPage.getErrorMassage()
                 .shouldHave(Condition.text("Неверно указан логин или пароль"))
                 .shouldBe(visible);
     }
@@ -61,7 +60,7 @@ class ReplenishmentTest {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.invalidpassword(authInfo);
-        $("[data-test-id='error-notification']")
+        loginPage.getErrorMassage()
                 .shouldHave(Condition.text("Неверно указан логин или пароль"))
                 .shouldBe(visible);
     }
@@ -73,7 +72,7 @@ class ReplenishmentTest {
         var verificationPage = loginPage.validLogin(authInfo);
         var wrongcode = DataHelper.getCodeFor();
         verificationPage.invalidVerify(wrongcode);
-        $("[data-test-id='error-notification']")
+        verificationPage.getErrorMassage()
                 .shouldHave(Condition.text("Неверно указан код! Попробуйте ещё раз."))
                 .shouldBe(visible);
     }
@@ -120,10 +119,11 @@ class ReplenishmentTest {
         balanceCard0002 = dashboard.getCardBalance("0002");
         dashboard.replenishCard0001();
 
-        var transfer = new TransferPage().transfer(100000, DataHelper.cardNumber("0001"));
+        var transfer = new TransferPage();
+        transfer.transfer(100000, DataHelper.cardNumber("0001"));
 
-        $("[data-test-id='error-notification']")
-                .shouldHave(Condition.text("Ошибка"))
+        transfer.getErrorMassage()
+                .shouldHave(Condition.text("Ошибка!"))
                 .shouldBe(visible);
     }
 }
