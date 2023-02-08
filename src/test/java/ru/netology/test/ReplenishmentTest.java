@@ -28,7 +28,6 @@ class ReplenishmentTest {
         return new DashboardPage();
     }
 
-
     @BeforeEach
     void setup() {
         open("http://localhost:9999");
@@ -41,28 +40,30 @@ class ReplenishmentTest {
         var verificationPage = loginPage.validLogin(authInfo);
         var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
         verificationPage.validVerify(verificationCode);
-        $("h1")
-                .shouldBe(visible);
     }
 
     @Test
     void authByInvalidLogin() {
         var loginPage = new LoginPage();
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationPage = loginPage.invalidLogin(authInfo);
-        loginPage.getErrorMassage()
-                .shouldHave(Condition.text("Неверно указан логин или пароль"))
-                .shouldBe(visible);
+        var authInfo = DataHelper.getAuthInfoWithOtherLogin();
+        loginPage.invalidLoginOrPassword(authInfo);
+        loginPage.getErrorMassage("Неверно указан логин или пароль");
     }
 
     @Test
     void authByInvalidPassword() {
         var loginPage = new LoginPage();
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationPage = loginPage.invalidpassword(authInfo);
-        loginPage.getErrorMassage()
-                .shouldHave(Condition.text("Неверно указан логин или пароль"))
-                .shouldBe(visible);
+        var authInfo = DataHelper.getAuthInfoWithOtherPassword();
+        loginPage.invalidLoginOrPassword(authInfo);
+        loginPage.getErrorMassage("Неверно указан логин или пароль");
+    }
+
+    @Test
+    void authByInvalidLoginAndPassword() {
+        var loginPage = new LoginPage();
+        var authInfo = DataHelper.getOtherAuthInfo();
+        loginPage.invalidLoginOrPassword(authInfo);
+        loginPage.getErrorMassage("Неверно указан логин или пароль");
     }
 
     @Test
@@ -70,22 +71,18 @@ class ReplenishmentTest {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfo();
         var verificationPage = loginPage.validLogin(authInfo);
-        var wrongcode = DataHelper.getCodeFor();
+        var wrongcode = DataHelper.getNotVerificationCodeFor();
         verificationPage.invalidVerify(wrongcode);
-        verificationPage.getErrorMassage()
-                .shouldHave(Condition.text("Неверно указан код! Попробуйте ещё раз."))
-                .shouldBe(visible);
+        verificationPage.getErrorMassage("Неверно указан код! Попробуйте ещё раз.");
     }
 
 
     @Test
     void successfulReplenishmentOfCard0001() {
-        mainPage();
-        var dashboard = new DashboardPage();
-        balanceCard0001 = dashboard.getCardBalance("0001");
-        balanceCard0002 = dashboard.getCardBalance("0002");
-        dashboard.replenishCard0001();
-
+        var mainPage = mainPage();
+        balanceCard0001 = mainPage.getCardBalance("0001");
+        balanceCard0002 = mainPage.getCardBalance("0002");
+        mainPage.replenishCard0001();
         var transfer = new TransferPage().transfer(5000, DataHelper.cardNumber("0001"));
         actualBalanceCard0001 = transfer.getCardBalance("0001");
         actualBalanceCard0002 = transfer.getCardBalance("0002");
@@ -96,11 +93,10 @@ class ReplenishmentTest {
 
     @Test
     void successfulReplenishmentOfCard0002() {
-        mainPage();
-        var dashboard = new DashboardPage();
-        balanceCard0001 = dashboard.getCardBalance("0001");
-        balanceCard0002 = dashboard.getCardBalance("0002");
-        dashboard.replenishCard0002();
+        var mainPage = mainPage();
+        balanceCard0001 = mainPage.getCardBalance("0001");
+        balanceCard0002 = mainPage.getCardBalance("0002");
+        mainPage.replenishCard0002();
 
         var transfer = new TransferPage().transfer(500, DataHelper.cardNumber("0002"));
         actualBalanceCard0001 = transfer.getCardBalance("0001");
@@ -113,17 +109,20 @@ class ReplenishmentTest {
     /*    TODO Тест с ошибкой */
     @Test
     void replenishmentOfCard0001IfThereIsNotEnoughMoneyOnCard0002() {
-        mainPage();
-        var dashboard = new DashboardPage();
-        balanceCard0001 = dashboard.getCardBalance("0001");
-        balanceCard0002 = dashboard.getCardBalance("0002");
-        dashboard.replenishCard0001();
+        var mainPage = mainPage();
+        balanceCard0001 = mainPage.getCardBalance("0001");
+        balanceCard0002 = mainPage.getCardBalance("0002");
+        mainPage.replenishCard0001();
 
         var transfer = new TransferPage();
         transfer.transfer(100000, DataHelper.cardNumber("0001"));
+        transfer.getErrorMassage("Ошибка! На карте **** **** **** 0001 не достаточно денег");
 
-        transfer.getErrorMassage()
-                .shouldHave(Condition.text("Ошибка!"))
-                .shouldBe(visible);
+        actualBalanceCard0001 = mainPage().getCardBalance("0001");
+        actualBalanceCard0002 = mainPage().getCardBalance("0002");
+//        actualBalanceCard0002 = transfer.getCardBalance("0002");
+
+        Assertions.assertEquals(balanceCard0001, actualBalanceCard0001);
+        Assertions.assertEquals(balanceCard0002, actualBalanceCard0002);
     }
 }
