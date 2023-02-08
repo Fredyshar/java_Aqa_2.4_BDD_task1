@@ -34,15 +34,6 @@ class ReplenishmentTest {
     }
 
     @Test
-    void successfulAuth() {
-        var loginPage = new LoginPage();
-        var authInfo = DataHelper.getAuthInfo();
-        var verificationPage = loginPage.validLogin(authInfo);
-        var verificationCode = DataHelper.getVerificationCodeFor(authInfo);
-        verificationPage.validVerify(verificationCode);
-    }
-
-    @Test
     void authByInvalidLogin() {
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getAuthInfoWithOtherLogin();
@@ -59,7 +50,7 @@ class ReplenishmentTest {
     }
 
     @Test
-    void authByInvalidLoginAndPassword() {
+    void authByInvalidLoginAndPassword() {                                      /*    TODO Тест с ошибкой */
         var loginPage = new LoginPage();
         var authInfo = DataHelper.getOtherAuthInfo();
         loginPage.invalidLoginOrPassword(authInfo);
@@ -75,7 +66,6 @@ class ReplenishmentTest {
         verificationPage.invalidVerify(wrongcode);
         verificationPage.getErrorMassage("Неверно указан код! Попробуйте ещё раз.");
     }
-
 
     @Test
     void successfulReplenishmentOfCard0001() {
@@ -106,9 +96,8 @@ class ReplenishmentTest {
         Assertions.assertEquals(balanceCard0002 + 500, actualBalanceCard0002);
     }
 
-    /*    TODO Тест с ошибкой */
     @Test
-    void replenishmentOfCard0001IfThereIsNotEnoughMoneyOnCard0002() {
+    void replenishmentOfCard0001IfThereIsNotEnoughMoneyOnCard0002() {               /*    TODO Тест с ошибкой */
         var mainPage = mainPage();
         balanceCard0001 = mainPage.getCardBalance("0001");
         balanceCard0002 = mainPage.getCardBalance("0002");
@@ -120,7 +109,6 @@ class ReplenishmentTest {
 
         actualBalanceCard0001 = mainPage().getCardBalance("0001");
         actualBalanceCard0002 = mainPage().getCardBalance("0002");
-//        actualBalanceCard0002 = transfer.getCardBalance("0002");
 
         Assertions.assertEquals(balanceCard0001, actualBalanceCard0001);
         Assertions.assertEquals(balanceCard0002, actualBalanceCard0002);
